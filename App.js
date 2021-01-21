@@ -1,114 +1,90 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
-  View,
   Text,
-  StatusBar,
+  Platform,
+  KeyboardAvoidingView,
+  ImageBackground,
+  View
 } from 'react-native';
 
 import {
-  Header,
-  LearnMoreLinks,
   Colors,
-  DebugInstructions,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import SearchInput from './components/SearchInput'
+import getImageForWeather from './utils/getImageForWeather';
 
-const App: () => React$Node = () => {
+const App = () => {
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <KeyboardAvoidingView
+    style={styles.container}
+    behavior="height"
+  >
+    <ImageBackground
+      source={getImageForWeather('Clear')}
+      style={styles.imageContainer}
+      imageStyle={styles.image}
+    >
+      <View style={styles.detailsContainer}>
+        <Text style={[styles.largeText, styles.textStyle]}>
+          San Francisco
+        </Text>
+        <Text style={[styles.smallText, styles.textStyle]}>
+Light Cloud
+        </Text>
+        <Text style={[styles.largeText, styles.textStyle]}>
+24° </Text>
+        <SearchInput placeholder="Search any city" />
+      </View>
+    </ImageBackground>
+  </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    backgroundColor: '#34495E',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  textStyle: {
+    textAlign: 'center',
+    fontFamily:
+      Platform.OS === 'ios' ? 'AvenirNext-Regular' : 'Roboto',
+    color: 'white'  
   },
-  body: {
-    backgroundColor: Colors.white,
+  largeText: {
+    fontSize: 44,
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
+  smallText: {
     fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
   },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
+  textInput: {
+    backgroundColor: '#666',
+    color: 'white',
+    height: 40,
+    width: 300,
+    marginTop: 20,
+    marginHorizontal: 20,
+    paddingHorizontal: 10,
+    alignSelf: 'center',
+},
+ imageContainer: {
+    flex: 1,
+},
+image: {
+  resizeMode: 'cover',
+  flex: 1,
+  height: null,
+  width: null
+},
+detailsContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  backgroundColor: 'rgba(0,0,0,0.1)',
+  paddingHorizontal: 20,
+},
 });
 
 export default App;
