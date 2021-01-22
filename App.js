@@ -1,64 +1,91 @@
-import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  Platform,
-  KeyboardAvoidingView,
-  ImageBackground,
-  View
-} from 'react-native';
-
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
+import React from 'react'
+import { StyleSheet, Text, Platform, KeyboardAvoidingView, ImageBackground, View, ActivityIndicator, StatusBar } from 'react-native'
 import SearchInput from './components/SearchInput'
-import getImageForWeather from './utils/getImageForWeather';
+import getImageForWeather from './utils/getImageForWeather'
+import { fetchLocationId, fetchWeather } from './utils/api'
 
-const App = () => {
-  return (
-    <KeyboardAvoidingView
-    style={styles.container}
-    behavior="height"
-  >
-    <ImageBackground
-      source={getImageForWeather('Clear')}
-      style={styles.imageContainer}
-      imageStyle={styles.image}
-    >
-      <View style={styles.detailsContainer}>
-        <Text style={[styles.largeText, styles.textStyle]}>
-          San Francisco
-        </Text>
-        <Text style={[styles.smallText, styles.textStyle]}>
-Light Cloud
-        </Text>
-        <Text style={[styles.largeText, styles.textStyle]}>
-24° </Text>
-        <SearchInput placeholder="Search any city" />
-      </View>
-    </ImageBackground>
-  </KeyboardAvoidingView>
-  );
-};
+export default class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      location: '',
+      loading: false,
+      error: false,
+      weather: '',
+      temperature: ''
+    }
+  }
+
+  handleUpdateLocation = (city) => {
+    if (!city) return
+    this.setState({ loading: true }, async () => {
+      try {
+        const locationId = await fetchLocationId(city)
+        const { location, weather, temperature } = await fetchWeather(locationId)
+        this.setState({
+          loading: false,
+          error: false,
+          location,
+          weather,
+          temperature
+        })
+      } catch (e) {
+        this.setState({
+          loading: false,
+          error: true
+        })
+      }
+    })
+  }
+  componentDidMount() {
+    this.handleUpdateLocation('San Francisco')
+  }
+  render() {
+    const { loading, error, location, weather, temperature } = this.state
+    return (
+      <KeyboardAvoidingView style={styles.container} behavior='height'>
+        <StatusBar barStyle='light-content' />
+        <ImageBackground source={getImageForWeather(weather)} style={styles.imageContainer} imageStyle={styles.image}>
+          <View style={styles.detailsContainer}>
+            <ActivityIndicator animating={loading} color='black' size='large' />
+            {!loading && (
+              <View>
+                {error && <Text style={[styles.smallText, styles.textStyle]}>Could not load weather, please try a different city.</Text>}
+                {!error && (
+                  <View>
+                    <Text style={[styles.largeText, styles.textStyle]}>{location}</Text>
+                    <Text style={[styles.smallText, styles.textStyle]}>{weather}</Text>
+                    <Text style={[styles.largeText, styles.textStyle]}>{`${Math.round(temperature)}°`} </Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            <SearchInput placeholder='Search any city' onSubmit={this.handleUpdateLocation} />
+          </View>
+        </ImageBackground>
+      </KeyboardAvoidingView>
+    )
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#34495E',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   textStyle: {
     textAlign: 'center',
-    fontFamily:
-      Platform.OS === 'ios' ? 'AvenirNext-Regular' : 'Roboto',
-    color: 'white'  
+    fontFamily: Platform.OS === 'ios' ? 'AvenirNext-Regular' : 'Roboto',
+    color: 'white'
   },
   largeText: {
-    fontSize: 44,
+    fontSize: 44
   },
   smallText: {
-    fontSize: 18,
+    fontSize: 18
   },
   textInput: {
     backgroundColor: '#666',
@@ -68,23 +95,21 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginHorizontal: 20,
     paddingHorizontal: 10,
-    alignSelf: 'center',
-},
- imageContainer: {
+    alignSelf: 'center'
+  },
+  imageContainer: {
+    flex: 1
+  },
+  image: {
+    resizeMode: 'cover',
     flex: 1,
-},
-image: {
-  resizeMode: 'cover',
-  flex: 1,
-  height: null,
-  width: null
-},
-detailsContainer: {
-  flex: 1,
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0,0,0,0.1)',
-  paddingHorizontal: 20,
-},
-});
-
-export default App;
+    height: null,
+    width: null
+  },
+  detailsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    paddingHorizontal: 20
+  }
+})
